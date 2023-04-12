@@ -1,26 +1,32 @@
-const app = require('express')();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
-
+import { Server, Socket } from 'socket.io';
+import http from 'http';
+import { CodeBlockModal } from '../model/codeBlock.model';
+const server = http.createServer();
+const io = new Server(server);
 io.on('connection', (socket) => {
 	console.log('a user connected');
-
-	socket.on('join', (room) => {
-		console.log(`user joined room ${room}`);
-		socket.join(room);
-	});
-
-	socket.on('code block', (data) => {
-		console.log(`received code block: ${data.code}`);
-		// Broadcast the received code block to all clients in the "code room"
-		socket.to('code room').emit('code block', data);
+	socket.on('code_block', (data) => {
+		console.log(`Received new code block: ${data}`);
+		// const _id = data._id;
+		// const newData = data.data;
+		// if (down) {
+		// 	CodeBlockModal.findByIdAndUpdate(_id, newData, { new: true })
+		// 		.then((updatedCodeBlock) => {
+		// 			console.log('Updated code block:', updatedCodeBlock);
+		// 			io.to('code room').emit('code block', {
+		// 				code: updatedCodeBlock?.code,
+		// 			});
+		// 		})
+		// 		.catch((err) => {
+		// 			console.error('Error updating code block:', err);
+		// 		});
+		// }
 	});
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected');
 	});
 });
-
-http.listen(7000, () => {
-	console.log('listening on *:7000');
+server.listen(3000, () => {
+	console.log('Server listening on port 3000.');
 });
