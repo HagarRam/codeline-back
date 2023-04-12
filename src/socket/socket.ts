@@ -1,16 +1,18 @@
-import { Server, Socket } from 'socket.io';
-import http from 'http';
-import { CodeBlockModal } from '../model/codeBlock.model';
-const server = http.createServer();
-const io = new Server(server);
+// import { Server, Socket } from 'socket.io';
+// import http from 'http';
+// import { CodeBlockModal } from '../model/codeBlock.model';
+// import express from 'express';
+// const app = express();
+// const server = http.createServer();
+// const io = new Server(server);
 
-interface ICodeOnline {
-	code: string;
-	readOnly: boolean;
-	mentor: string | null;
-	connectedPeople: number;
-}
-const codeBlock: ICodeOnline[] = [];
+// interface ICodeOnline {
+// 	code: string;
+// 	readOnly: boolean;
+// 	mentor: string | null;
+// 	connectedPeople: number;
+// }
+// const codeBlock: ICodeOnline[] = [];
 // import { Server, Namespace } from "socket.io";
 // import { getAllRooms } from "../services/room.service";
 
@@ -91,18 +93,19 @@ const codeBlock: ICodeOnline[] = [];
 //   });
 // }
 
-io.on('connection', (socket) => {
-	console.log('a user connected');
-	socket.on('code_block', (data) => {
-		console.log(`Received new code block: ${data}`);
-	});
-	socket.on('disconnect', () => {
-		console.log('user disconnected');
-	});
-});
-server.listen(3000, () => {
-	console.log('Server listening on port 3000.');
-});
+//My!!!!
+// io.on('connection', (socket) => {
+// 	console.log('a user connected');
+// 	socket.on('code_block', (data) => {
+// 		console.log(`Received new code block: ${data}`);
+// 	});
+// 	socket.on('disconnect', () => {
+// 		console.log('user disconnected');
+// 	});
+// });
+// server.listen(3000, () => {
+// 	console.log('Server listening on port 3000.');
+// });
 
 // const _id = data._id;
 // const newData = data.data;
@@ -118,3 +121,10 @@ server.listen(3000, () => {
 // 			console.error('Error updating code block:', err);
 // 		});
 // }
+// const server = http.createServer(app);
+// const io = new Server(server, {
+// 	cors: {
+// 		origin: 'http://localhost:3000',
+// 		methods: ['GET', 'POST'],
+// 	},
+// });
