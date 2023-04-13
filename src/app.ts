@@ -4,14 +4,12 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { connectToDB } from './connection';
 import dotenv from 'dotenv';
-import http from 'http';
 import { CodeBlockModal, ICodeBlock } from './model/codeBlock.model';
-import { ObjectId } from 'mongoose';
 const socket = require('socket.io');
 dotenv.config();
 const port = process.env.PORT;
 const app = express();
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 const corsOptions = {
@@ -34,51 +32,56 @@ const io = socket(server, {
 });
 
 let codeBlocksData: ICodeBlock[] = [];
-const AllTheData = async () => {
+const getAllData = async () => {
 	const subjects: ICodeBlock[] = await CodeBlockModal.find();
-	codeBlocksData = subjects;
-	console.log(codeBlocksData);
+	codeBlocksData = [...subjects];
 };
-AllTheData();
 
-io.on('connection', (socket) => {
-	socket.on('join_Subject', (data: ICodeBlock) => {
-		socket.join(data._id);
-		console.log('User Joined Room: ' + data._id);
-		const currentData: ICodeBlock | undefined = codeBlocksData.find(
-			(subject: ICodeBlock) => {
-				return subject._id?.toString() === String(data._id);
+async function initialize() {
+	await getAllData();
+	io.on('connection', (socket: any) => {
+		socket.on('join_Subject', (data: ICodeBlock) => {
+			socket.join(data._id);
+			console.log('User Joined Room: ' + data._id);
+			const currentData: ICodeBlock | undefined = codeBlocksData.find(
+				(subject: ICodeBlock) => {
+					return subject._id?.toString() === String(data._id);
+				}
+			);
+			console.log(currentData, 'current');
+			if (currentData) {
+				currentData.connect = currentData.connect + 1;
+				console.log(currentData, 'with-conntect');
+				socket.emit('isMentor', currentData?.readOnly);
+				if (currentData?.connect === 1) {
+					currentData.readOnly = false;
+					currentData.firstClient = socket.id;
+					io.to(socket.id).emit('isMentor', false);
+				}
 			}
-		);
-		console.log(currentData, 'current');
-		if (currentData) {
-			currentData.connected = currentData.connected + 1;
-		}
-		socket.emit('isMentor', currentData?.readOnly);
-		if (currentData?.connected === 1) {
-			currentData.readOnly = false;
-			currentData.firstClient = socket.id;
-		}
-	});
-	socket.on('new_code', (data: ICodeBlock) => {
-		console.log(data, 'emit');
-		io.to(data._id).emit('receive_message', data.code);
-	});
+			console.log(currentData, 'read-only');
+		});
+		socket.on('new_code', (data: ICodeBlock) => {
+			console.log(data, 'emit');
+			io.to(data._id).emit('receive_code', data.code);
+		});
 
-	socket.on('user_disconnect', (data: ICodeBlock) => {
-		const currentData: ICodeBlock | undefined = codeBlocksData.find(
-			(subject: ICodeBlock) => {
-				return subject._id?.toString() === String(data._id);
+		socket.on('user_disconnect', (data: ICodeBlock) => {
+			const currentData: ICodeBlock | undefined = codeBlocksData.find(
+				(subject: ICodeBlock) => {
+					return subject._id?.toString() === String(data._id);
+				}
+			);
+			if (currentData) {
+				if (currentData.connect > 0)
+					currentData.connect = currentData.connect - 1;
+				if (currentData.connect === 0) {
+					currentData.readOnly = true;
+					io.to(currentData._id).emit('isMentor', currentData.readOnly);
+				}
 			}
-		);
-		if (currentData) {
-			if (currentData.connected > 0)
-				currentData.connected = currentData.connected - 1;
-			if (currentData.connected === 0) {
-				currentData.readOnly = true;
-				io.to(currentData._id).emit('readOnly', currentData.readOnly);
-			}
-		}
-		console.log('USER DISCONNECTED');
+			console.log('USER DISCONNECTED');
+		});
 	});
-});
+}
+initialize();
