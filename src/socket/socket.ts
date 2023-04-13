@@ -1,9 +1,10 @@
-// import { Server, Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 // import http from 'http';
 // import { CodeBlockModal } from '../model/codeBlock.model';
 // import express from 'express';
 // const app = express();
 // const server = http.createServer();
+// import { io } from '../app';
 // const io = new Server(server);
 
 // interface ICodeOnline {
@@ -97,7 +98,10 @@
 // io.on('connection', (socket) => {
 // 	console.log('a user connected');
 // 	socket.on('code_block', (data) => {
-// 		console.log(`Received new code block: ${data}`);
+// 		socket.join(data._id);
+// 		console.log(`Received new code block: ${data.code}`);
+// 		// socket.emit('codeUpdate', data.code);
+// 		// socket.emit('readOnly', data.read);
 // 	});
 // 	socket.on('disconnect', () => {
 // 		console.log('user disconnected');
