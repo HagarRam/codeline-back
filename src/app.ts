@@ -41,7 +41,7 @@ const AllTheData = async () => {
 };
 AllTheData();
 
-io.on('connection', (socket: any) => {
+io.on('connection', (socket) => {
 	socket.on('join_Subject', (data: ICodeBlock) => {
 		socket.join(data._id);
 		console.log('User Joined Room: ' + data._id);
@@ -65,7 +65,7 @@ io.on('connection', (socket: any) => {
 		io.to(data._id).emit('receive_message', data.code);
 	});
 
-	socket.on('disconnect', (data: ICodeBlock) => {
+	socket.on('user_disconnect', (data: ICodeBlock) => {
 		const currentData: ICodeBlock | undefined = codeBlocksData.find(
 			(subject: ICodeBlock) => {
 				return subject._id?.toString() === String(data._id);
