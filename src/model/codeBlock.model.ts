@@ -4,12 +4,20 @@ export interface ICodeBlock {
 	_id: ObjectId;
 	title: string;
 	code: string;
+	correctCode: string;
+	connected: number;
+	firstClient: string | null;
+	readOnly: boolean;
 }
 
 export const codeBlockSchema = new Schema<ICodeBlock>({
 	_id: { type: Schema.Types.ObjectId, required: false },
-	title: { type: String, required: true },
+	title: { type: String, required: false },
 	code: { type: String, required: true },
+	correctCode: { type: String, required: false },
+	connected: { type: Number, required: false },
+	firstClient: { type: String || null, required: false },
+	readOnly: { type: Boolean, required: false },
 });
 
 export const CodeBlockModal = mongoose.model<ICodeBlock>(
