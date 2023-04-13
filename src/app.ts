@@ -5,21 +5,20 @@ import cors from 'cors';
 import { connectToDB } from './connection';
 import dotenv from 'dotenv';
 import http from 'http';
-import { ICodeBlock } from './model/codeBlock.model';
+import { CodeBlockModal, ICodeBlock } from './model/codeBlock.model';
+import { ObjectId } from 'mongoose';
 const socket = require('socket.io');
 dotenv.config();
 const port = process.env.PORT;
 const app = express();
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
-import $ from 'jquery';
 
 const corsOptions = {
 	origin: 'http://localhost:3000',
 	methods: ['GET', 'POST'],
 	allowedHeaders: ['Content-Type', 'Authorization'],
 	credentials: true,
-	// add this line to include the Access-Control-Allow-Origin header
 	exposedHeaders: ['Access-Control-Allow-Origin'],
 };
 
@@ -30,41 +29,56 @@ connectToDB();
 const server = app.listen(port, () =>
 	console.log(`Listening on http://localhost:${port}`)
 );
-
 const io = socket(server, {
 	cors: corsOptions,
 });
 
-// const io = socket(server);
+let codeBlocksData: ICodeBlock[] = [];
+const AllTheData = async () => {
+	const subjects: ICodeBlock[] = await CodeBlockModal.find();
+	codeBlocksData = subjects;
+	console.log(codeBlocksData);
+};
+AllTheData();
 
 io.on('connection', (socket: any) => {
 	socket.on('join_Subject', (data: ICodeBlock) => {
 		socket.join(data._id);
 		console.log('User Joined Room: ' + data._id);
+		const currentData: ICodeBlock | undefined = codeBlocksData.find(
+			(subject: ICodeBlock) => {
+				return subject._id?.toString() === String(data._id);
+			}
+		);
+		console.log(currentData, 'current');
+		if (currentData) {
+			currentData.connected = currentData.connected + 1;
+		}
+		socket.emit('isMentor', currentData?.readOnly);
+		if (currentData?.connected === 1) {
+			currentData.readOnly = false;
+			currentData.firstClient = socket.id;
+		}
 	});
 	socket.on('new_code', (data: ICodeBlock) => {
 		console.log(data, 'emit');
 		io.to(data._id).emit('receive_message', data.code);
 	});
 
-	// Receive messages from the client
-	socket.on('receive_message', (code: string) => {
-		console.log(code, 'code received');
-		// Do something with the code received from the client
-	});
-
-	socket.on('disconnect', () => {
+	socket.on('disconnect', (data: ICodeBlock) => {
+		const currentData: ICodeBlock | undefined = codeBlocksData.find(
+			(subject: ICodeBlock) => {
+				return subject._id?.toString() === String(data._id);
+			}
+		);
+		if (currentData) {
+			if (currentData.connected > 0)
+				currentData.connected = currentData.connected - 1;
+			if (currentData.connected === 0) {
+				currentData.readOnly = true;
+				io.to(currentData._id).emit('readOnly', currentData.readOnly);
+			}
+		}
 		console.log('USER DISCONNECTED');
 	});
 });
-
-// socket.on('send_message', (data: { _id: string, code: string }) => {
-//     console.log(data);
-//     newSocket.to(data._id).emit('receive_message', data.code);
-//   });
-// const codeTextArea = $('#code-textarea');
-
-// io.on('receive_message', (code) => {
-//   // update the value of the text area with the received code
-//   codeTextArea.val(code);
-// });
