@@ -12,6 +12,8 @@ const port = process.env.PORT;
 const app = express();
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
+import $ from 'jquery';
+
 const corsOptions = {
 	origin: 'http://localhost:3000',
 	methods: ['GET', 'POST'],
@@ -39,15 +41,30 @@ io.on('connection', (socket: any) => {
 	socket.on('join_Subject', (data: ICodeBlock) => {
 		socket.join(data._id);
 		console.log('User Joined Room: ' + data._id);
-		// console.log(data);
 	});
 	socket.on('new_code', (data: ICodeBlock) => {
 		console.log(data, 'emit');
-		socket.broadcast.emit('code-update', data);
-		socket.to(data._id).emit('receive_message', data.code);
+		io.to(data._id).emit('receive_message', data.code);
+	});
+
+	// Receive messages from the client
+	socket.on('receive_message', (code: string) => {
+		console.log(code, 'code received');
+		// Do something with the code received from the client
 	});
 
 	socket.on('disconnect', () => {
 		console.log('USER DISCONNECTED');
 	});
 });
+
+// socket.on('send_message', (data: { _id: string, code: string }) => {
+//     console.log(data);
+//     newSocket.to(data._id).emit('receive_message', data.code);
+//   });
+// const codeTextArea = $('#code-textarea');
+
+// io.on('receive_message', (code) => {
+//   // update the value of the text area with the received code
+//   codeTextArea.val(code);
+// });
