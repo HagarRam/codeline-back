@@ -1,12 +1,11 @@
 import { Schema, model, ObjectId } from 'mongoose';
 import mongoose from 'mongoose';
 export interface ICodeBlock {
-	_id: ObjectId;
-	title: string;
-	code: string;
-	correctCode: string;
-	connect: number;
-	readOnly: boolean;
+	_id?: ObjectId;
+	title?: string;
+	code?: string;
+	correctCode?: string;
+	readOnly?: boolean;
 }
 
 export const codeBlockSchema = new Schema<ICodeBlock>({
@@ -14,7 +13,6 @@ export const codeBlockSchema = new Schema<ICodeBlock>({
 	title: { type: String, required: false },
 	code: { type: String, required: true },
 	correctCode: { type: String, required: false },
-	connect: { type: Number, required: false },
 	readOnly: { type: Boolean, required: false },
 });
 
