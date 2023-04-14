@@ -68,20 +68,13 @@ const initialize = async () => {
 		});
 
 		socket.on('user_disconnect', (data: ICodeBlock) => {
-			const currentData: ICodeBlock | undefined = codeBlocksData.find(
-				(subject: ICodeBlock) => {
-					return subject._id?.toString() === String(data._id);
-				}
-			);
-			console.log('disconnectData', data);
 			console.log('USER DISCONNECTED');
-			if (currentData) {
-				if (currentData.connect > 0)
-					currentData.connect = currentData.connect - 1;
-				io.to(socket.id).emit('connected', currentData?.connect);
-				if (currentData.connect === 0) {
-					currentData.readOnly = true;
-					io.to(currentData._id).emit('isMentor', currentData.readOnly);
+			if (data) {
+				if (data.connect > 0) data.connect = data.connect - 1;
+				io.to(socket.id).emit('connected', data?.connect);
+				if (data.connect === 0) {
+					data.readOnly = true;
+					io.to(data._id).emit('isMentor', data.readOnly);
 				}
 			}
 		});
