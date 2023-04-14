@@ -10,7 +10,6 @@ export const getAllCodeBlock = async (req: Request, res: Response) => {
 	}
 };
 export const updateCode = async (req: Request, res: Response) => {
-	console.log(req.body._id, req.body.data);
 	try {
 		const newCode = await updateCodeData(req.body._id, req.body.data);
 		res.status(201).json(newCode);

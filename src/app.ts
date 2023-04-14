@@ -31,8 +31,8 @@ const io = socket(server, {
 	cors: corsOptions,
 });
 
-let codeBlocksData: ICodeBlock[] = [];
 const getAllData = async () => {
+	let codeBlocksData: ICodeBlock[] = [];
 	const subjects: ICodeBlock[] = await CodeBlockModal.find();
 	codeBlocksData = [...subjects];
 };
@@ -60,7 +60,23 @@ const initialize = async () => {
 
 		connected_users.push(new_user);
 		socket.emit('isMentor', new_user.isMentor);
+		socket.on('new_code', (data: string) => {
+			console.log(data);
+			let mentor = connected_users.find((users: IUsers) => {
+				return users.isMentor == true;
+			});
 
+			console.log(connected_users);
+			console.log(mentor);
+
+			if (socket.id != mentor?.socketID) {
+				console.log(socket.id);
+				console.log(mentor?.socketID);
+				console.log(mentor?.isMentor);
+
+				io.to(mentor?.socketID).emit('code_update', data);
+			}
+		});
 		socket.on('disconnect', function () {
 			console.log('Got disconnect!');
 			let user: IUsers | undefined = connected_users.find((users: IUsers) => {
@@ -79,66 +95,48 @@ const initialize = async () => {
 				}
 			}
 		});
-		socket.on('new_code', (data: string) => {
-			console.log(data);
-
-			let mentor = connected_users.find((users: IUsers) => {
-				return users.isMentor == true;
-			});
-
-			console.log(connected_users);
-			console.log(mentor);
-
-			if (socket.id != mentor?.socketID) {
-				console.log(socket.id);
-				console.log(mentor?.socketID);
-				console.log(mentor?.isMentor);
-
-				io.to(mentor?.socketID).emit('code_update', data);
-			}
-		});
-		// const currentData: ICodeBlock | undefined = codeBlocksData.find(
-		// 	(subject: ICodeBlock) => {
-		// 		return subject._id?.toString() === String(data._id);
-		// 	}
-		// );
-		// 		socket.emit('new_code', currentData);
-		// 		socket.on('new_code', (data: ICodeBlock) => {
-		// 			console.log(data, 'emit');
-		// 			if (data) {
-		// 				io.to(data?._id).emit('new_code', data.code);
-		// 			}
-		// 		});
-		// 		console.log(currentData, 'current');
-		// 		socket.emit('connected', currentData?.connect);
-		// 		if (currentData) {
-		// 			currentData.connect = currentData.connect + 1;
-		// 			io.to(socket.id).emit('connected', currentData?.connect);
-		// 			console.log(currentData, 'with-conntect');
-		// 			socket.emit('isMentor', currentData?.readOnly);
-		// 			if (currentData?.connect === 1) {
-		// 				currentData.readOnly = false;
-		// 				io.to(socket.id).emit('isMentor', false);
-		// 			}
-		// 		}
-		// 		console.log(currentData, 'read-only');
-		// 	});
-
-		// 	socket.on('user_disconnect', (data: ICodeBlock) => {
-		// 		console.log('USER DISCONNECTED');
-		// 		console.log('USER DISCONNECTED', data);
-		// 		if (data) {
-		// 			if (data.connect > 0) data.connect = data.connect - 1;
-		// 			io.to(socket.id).emit('connected', data?.connect);
-		// 			if (data.connect === 0) {
-		// 				data.readOnly = true;
-		// 				io.to(data._id).emit('isMentor', data.readOnly);
-		// 			}
-		// 		}
-		// 		io.to(socket.id).emit('user_disconnect', data);
 	});
 };
 initialize();
+// const currentData: ICodeBlock | undefined = codeBlocksData.find(
+// 	(subject: ICodeBlock) => {
+// 		return subject._id?.toString() === String(data._id);
+// 	}
+// );
+// 		socket.emit('new_code', currentData);
+// 		socket.on('new_code', (data: ICodeBlock) => {
+// 			console.log(data, 'emit');
+// 			if (data) {
+// 				io.to(data?._id).emit('new_code', data.code);
+// 			}
+// 		});
+// 		console.log(currentData, 'current');
+// 		socket.emit('connected', currentData?.connect);
+// 		if (currentData) {
+// 			currentData.connect = currentData.connect + 1;
+// 			io.to(socket.id).emit('connected', currentData?.connect);
+// 			console.log(currentData, 'with-conntect');
+// 			socket.emit('isMentor', currentData?.readOnly);
+// 			if (currentData?.connect === 1) {
+// 				currentData.readOnly = false;
+// 				io.to(socket.id).emit('isMentor', false);
+// 			}
+// 		}
+// 		console.log(currentData, 'read-only');
+// 	});
+
+// 	socket.on('user_disconnect', (data: ICodeBlock) => {
+// 		console.log('USER DISCONNECTED');
+// 		console.log('USER DISCONNECTED', data);
+// 		if (data) {
+// 			if (data.connect > 0) data.connect = data.connect - 1;
+// 			io.to(socket.id).emit('connected', data?.connect);
+// 			if (data.connect === 0) {
+// 				data.readOnly = true;
+// 				io.to(data._id).emit('isMentor', data.readOnly);
+// 			}
+// 		}
+// 		io.to(socket.id).emit('user_disconnect', data);
 
 // const initialize = async () => {
 // 	await getAllData();
