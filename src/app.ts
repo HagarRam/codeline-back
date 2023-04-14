@@ -14,12 +14,11 @@ app.use(bodyParser.json());
 
 const corsOptions = {
 	origin: 'http://localhost:3000',
-	methods: ['GET', 'POST'],
-	allowedHeaders: ['Content-Type', 'Authorization'],
+	methods: ['GET', 'POST', 'PUT'],
+	// allowedHeaders: ['Content-Type', 'Authorization'],
 	credentials: true,
-	exposedHeaders: ['Access-Control-Allow-Origin'],
+	// exposedHeaders: ['Access-Control-Allow-Origin'],
 };
-
 app.use(cors(corsOptions));
 app.use(routes);
 connectToDB();
