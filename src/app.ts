@@ -37,7 +37,7 @@ const getAllData = async () => {
 	codeBlocksData = [...subjects];
 };
 
-async function initialize() {
+const initialize = async () => {
 	await getAllData();
 	io.on('connection', (socket: any) => {
 		socket.on('join_Subject', (data: ICodeBlock) => {
@@ -48,6 +48,10 @@ async function initialize() {
 					return subject._id?.toString() === String(data._id);
 				}
 			);
+			socket.on('new_code', (data: ICodeBlock) => {
+				console.log(data, 'emit');
+				io.to(data._id).emit('receive_code', data.code);
+			});
 			console.log(currentData, 'current');
 			if (currentData) {
 				currentData.connect = currentData.connect + 1;
@@ -55,15 +59,10 @@ async function initialize() {
 				socket.emit('isMentor', currentData?.readOnly);
 				if (currentData?.connect === 1) {
 					currentData.readOnly = false;
-					currentData.firstClient = socket.id;
 					io.to(socket.id).emit('isMentor', false);
 				}
 			}
 			console.log(currentData, 'read-only');
-		});
-		socket.on('new_code', (data: ICodeBlock) => {
-			console.log(data, 'emit');
-			io.to(data._id).emit('receive_code', data.code);
 		});
 
 		socket.on('user_disconnect', (data: ICodeBlock) => {
@@ -83,5 +82,5 @@ async function initialize() {
 			console.log('USER DISCONNECTED');
 		});
 	});
-}
+};
 initialize();

@@ -6,7 +6,6 @@ export interface ICodeBlock {
 	code: string;
 	correctCode: string;
 	connect: number;
-	firstClient: string | null;
 	readOnly: boolean;
 }
 
@@ -16,7 +15,6 @@ export const codeBlockSchema = new Schema<ICodeBlock>({
 	code: { type: String, required: true },
 	correctCode: { type: String, required: false },
 	connect: { type: Number, required: false },
-	firstClient: { type: String || null, required: false },
 	readOnly: { type: Boolean, required: false },
 });
 
