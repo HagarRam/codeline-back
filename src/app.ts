@@ -53,8 +53,10 @@ const initialize = async () => {
 				io.to(data._id).emit('receive_code', data.code);
 			});
 			console.log(currentData, 'current');
+			socket.emit('connected', currentData?.connect);
 			if (currentData) {
 				currentData.connect = currentData.connect + 1;
+				io.to(socket.id).emit('connected', currentData?.connect);
 				console.log(currentData, 'with-conntect');
 				socket.emit('isMentor', currentData?.readOnly);
 				if (currentData?.connect === 1) {
@@ -71,15 +73,17 @@ const initialize = async () => {
 					return subject._id?.toString() === String(data._id);
 				}
 			);
+			console.log('disconnectData', data);
+			console.log('USER DISCONNECTED');
 			if (currentData) {
 				if (currentData.connect > 0)
 					currentData.connect = currentData.connect - 1;
+				io.to(socket.id).emit('connected', currentData?.connect);
 				if (currentData.connect === 0) {
 					currentData.readOnly = true;
 					io.to(currentData._id).emit('isMentor', currentData.readOnly);
 				}
 			}
-			console.log('USER DISCONNECTED');
 		});
 	});
 };
