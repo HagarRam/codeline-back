@@ -9,7 +9,7 @@ export interface ICodeBlock {
 }
 
 export const codeBlockSchema = new Schema<ICodeBlock>({
-	_id: { type: Schema.Types.ObjectId, required: false },
+	_id: { type: Schema.Types.ObjectId, required: true },
 	title: { type: String, required: false },
 	code: { type: String, required: true },
 	correctCode: { type: String, required: false },
