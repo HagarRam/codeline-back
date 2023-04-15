@@ -13,7 +13,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 const corsOptions = {
-	origin: 'http://localhost:3000',
+	// origin: 'http://localhost:3000',
+	origin: 'https://codelinefront.onrender.com/',
 	methods: ['GET', 'POST', 'PUT'],
 	credentials: true,
 };
