@@ -13,7 +13,8 @@
 		"express": "^4.18.2",
 		"jquery": "^3.6.4",
 		"mongoose": "^7.0.3",
-		"socket.io": "^4.6.1"
+		"socket.io": "^4.6.1",
+		"typescript": "^5.0.4"
 	},
 	"scripts": {
 		"start": "npx ts-node src/app.ts"
