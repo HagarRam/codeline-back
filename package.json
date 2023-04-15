@@ -14,5 +14,8 @@
 		"jquery": "^3.6.4",
 		"mongoose": "^7.0.3",
 		"socket.io": "^4.6.1"
+	},
+	"scripts": {
+		"start": "npx ts-node src/app.ts"
 	}
 }
